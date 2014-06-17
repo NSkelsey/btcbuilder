@@ -64,7 +64,7 @@ func pickNetwork(net btcwire.BitcoinNet) (btcrpcclient.ConnConfig, *btcnet.Param
 
 // Sets up an RPC client configured for the selected network,
 // it also responds with the relevant btcnet.Params struct
-func setupNet(net btcwire.BitcoinNet) (*btcrpcclient.Client, *btcnet.Params) {
+func SetupNet(net btcwire.BitcoinNet) (*btcrpcclient.Client, *btcnet.Params) {
 	connCfg, netparams := pickNetwork(net)
 	client := makeRpcClient(connCfg)
 	return client, netparams
@@ -168,7 +168,7 @@ func composeUnspents(minAmount int64, params BuilderParams) ([]*TxInParams, int6
 }
 
 // toHex converts a msgTx into a hex string.
-func toHex(tx *btcwire.MsgTx) string {
+func ToHex(tx *btcwire.MsgTx) string {
 	buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 	tx.Serialize(buf)
 	txHex := hex.EncodeToString(buf.Bytes())
@@ -229,7 +229,7 @@ func newAddr(client *btcrpcclient.Client) (btcutil.Address, error) {
 }
 
 // prevOutVal looks up all the values of the oupoints used in the current tx
-func prevOutVal(tx *btcwire.MsgTx, client *btcrpcclient.Client) (int64, error) {
+func PrevOutVal(tx *btcwire.MsgTx, client *btcrpcclient.Client) (int64, error) {
 	// requires an rpc client and outpoints within wallets realm
 	total := int64(0)
 	for _, txin := range tx.TxIn {
