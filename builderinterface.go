@@ -33,7 +33,7 @@ type TxBuilder interface {
 
 func CreateParams() BuilderParams {
 	logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
-	client, params := setupNet(btcwire.TestNet3)
+	client, params := SetupNet(btcwire.TestNet3)
 
 	bp := BuilderParams{
 		Fee:        20000,
@@ -47,12 +47,12 @@ func CreateParams() BuilderParams {
 	}
 	return bp
 }
-func send(builder TxBuilder, params BuilderParams) *btcwire.ShaHash {
+func Send(builder TxBuilder, params BuilderParams) *btcwire.ShaHash {
 	msg, err := builder.Build()
 	if err != nil {
 		log.Fatal(err)
 	}
-	println(toHex(msg))
+	println(ToHex(msg))
 	resp, err := params.Client.SendRawTransaction(msg, false)
 	if err != nil {
 		log.Fatal(err)
