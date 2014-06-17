@@ -6,6 +6,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/hex"
+	_ "encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -19,7 +20,6 @@ import (
 )
 
 var pver = btcwire.ProtocolVersion
-var logger *log.Logger
 
 // Network specific config
 var magic btcwire.BitcoinNet
@@ -55,6 +55,7 @@ func pickNetwork(net btcwire.BitcoinNet) (btcrpcclient.ConnConfig, *btcnet.Param
 	connCfg := btcrpcclient.ConnConfig{
 		Host:         "localhost:" + port,
 		User:         "bitcoinrpc",
+		Endpoint:     "",
 		Pass:         "EhxWGNKr1Z4LLqHtfwyQDemCRHF8gem843pnLj19K4go",
 		HttpPostMode: true,
 		DisableTLS:   true,
@@ -73,12 +74,13 @@ func SetupNet(net btcwire.BitcoinNet) (*btcrpcclient.Client, *btcnet.Params) {
 func makeRpcClient(connCfg btcrpcclient.ConnConfig) *btcrpcclient.Client {
 	client, err := btcrpcclient.New(&connCfg, nil)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 	// check to see if we are connected
-	_, err = client.GetDifficulty()
+	r, err := client.GetDifficulty()
 	if err != nil {
-		logger.Fatal(err)
+		log.Println(r)
+		log.Fatal(err)
 	}
 	return client
 }
@@ -87,7 +89,7 @@ func rpcTxPick(exact bool, targetAmnt int64, params BuilderParams) (*TxInParams,
 	// selects an unspent outpoint that is funded over the minAmount
 	list, err := params.Client.ListUnspent()
 	if err != nil {
-		logger.Println("list unpsent threw")
+		log.Println("list unpsent threw")
 		return nil, err
 	}
 	if len(list) < 1 {

@@ -32,7 +32,7 @@ type TxBuilder interface {
 }
 
 func CreateParams() BuilderParams {
-	logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
+	var logger *log.Logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
 	client, params := SetupNet(btcwire.TestNet3)
 
 	bp := BuilderParams{
