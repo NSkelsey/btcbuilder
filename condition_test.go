@@ -1,20 +1,17 @@
 package btcbuilder
 
-import (
-	"log"
-	"testing"
+import _ "gopkg.in/check.v1"
 
-	"github.com/conformal/btcwire"
-)
-
-func TestBalance(t *testing.T) {
-	client, _ := SetupNet(btcwire.TestNet3)
-	amnt, _ := client.GetBalance("")
-
-	balance := int64(amnt)
-
-	if balance < 20000000 {
-		log.Println("Not enough bitcoin in wallet: ", balance)
-		t.Fail()
-	}
-}
+//
+//func TestBalance(t *testing.T) {
+//	log.Println("Testing unspent")
+//	client, _ := SetupNet(btcwire.TestNet3)
+//	amnt, _ := client.GetBalance("askuck")
+//
+//	balance := int64(amnt)
+//
+//	if balance < 20000000 {
+//		log.Println("Not enough bitcoin in wallet: ", balance)
+//		t.Fail()
+//	}
+//}

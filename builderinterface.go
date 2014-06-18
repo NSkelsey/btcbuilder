@@ -31,6 +31,21 @@ type TxBuilder interface {
 	Summarize() string
 }
 
+func SetParams(net btcwire.BitcoinNet, params BuilderParams) BuilderParams {
+	if params.Logger == nil {
+		params.Logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
+	}
+	if params.Client == nil {
+		client, currnet := SetupNet(net)
+		params.Client = client
+		params.NetParams = currnet
+		params.PendingSet = make(map[string]struct{})
+		params.List = make([]btcjson.ListUnspentResult, 0)
+	}
+
+	return params
+}
+
 func CreateParams() BuilderParams {
 	var logger *log.Logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
 	client, params := SetupNet(btcwire.TestNet3)
@@ -47,6 +62,7 @@ func CreateParams() BuilderParams {
 	}
 	return bp
 }
+
 func Send(builder TxBuilder, params BuilderParams) *btcwire.ShaHash {
 	msg, err := builder.Build()
 	if err != nil {

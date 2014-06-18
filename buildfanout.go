@@ -16,11 +16,11 @@ type FanOutBuilder struct {
 // A FanOutBuilder creates a transaction that has txouts set to the needed value
 // for other tx builders that need those txouts as inputs
 // The number of outputs created is len(builders)*copies + 1
-func NewFanOutBuilder(params BuilderParams, builders []TxBuilder, copies int64) *FanOutBuilder {
+func NewFanOutBuilder(params BuilderParams, builders []TxBuilder, copies int) *FanOutBuilder {
 	fb := FanOutBuilder{
 		Params:   params,
 		Builders: builders,
-		Copies:   copies,
+		Copies:   int64(copies),
 	}
 	return &fb
 }
