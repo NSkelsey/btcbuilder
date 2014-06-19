@@ -55,8 +55,7 @@ func pickNetwork(net btcwire.BitcoinNet) (btcrpcclient.ConnConfig, *btcnet.Param
 	connCfg := btcrpcclient.ConnConfig{
 		Host:         "localhost:" + port,
 		User:         "bitcoinrpc",
-		Endpoint:     "",
-		Pass: 	      "9uTysQtMLf15DGWDYcQVStEbWKcNu8CqCL8Mb6HE3xFK",
+		Pass:         "9uTysQtMLf15DGWDYcQVStEbWKcNu8CqCL8Mb6HE3xFK",
 		HttpPostMode: true,
 		DisableTLS:   true,
 	}

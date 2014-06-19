@@ -1,17 +1,28 @@
 package btcbuilder
 
-import _ "gopkg.in/check.v1"
+import (
+	"log"
+	"testing"
 
-//
-//func TestBalance(t *testing.T) {
-//	log.Println("Testing unspent")
-//	client, _ := SetupNet(btcwire.TestNet3)
-//	amnt, _ := client.GetBalance("askuck")
-//
-//	balance := int64(amnt)
-//
-//	if balance < 20000000 {
-//		log.Println("Not enough bitcoin in wallet: ", balance)
-//		t.Fail()
-//	}
-//}
+	"github.com/conformal/btcwire"
+	_ "gopkg.in/check.v1"
+)
+
+func TestRpcParameters(t *testing.T) {
+	log.Println("Testing to see if rpc config works for this node!")
+
+	// TODO add parsing of config ini file
+	// from https://github.com/jessevdk/go-flags/blob/master/examples/main.go
+	client, err := SetupNet(btcwire.TestNet3)
+	if err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+
+	info, err := client.GetInfo()
+	if err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+
+}
