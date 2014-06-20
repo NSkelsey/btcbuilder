@@ -17,6 +17,7 @@ import (
 	"github.com/conformal/btcscript"
 	"github.com/conformal/btcutil"
 	"github.com/conformal/btcwire"
+	"github.com/jessevdk/go-flags"
 )
 
 var pver = btcwire.ProtocolVersion
@@ -31,57 +32,108 @@ type TxInParams struct {
 	Wif      *btcutil.WIF
 }
 
-func pickNetwork(net btcwire.BitcoinNet) (btcrpcclient.ConnConfig, *btcnet.Params) {
-	var currnet btcnet.Params
-	var port string
-	switch net {
-	case btcwire.TestNet3:
-		magic = btcwire.TestNet3
-		currnet = btcnet.TestNet3Params
-		port = "18332"
-	case btcwire.MainNet:
-		magic = btcwire.MainNet
-		currnet = btcnet.MainNetParams
-		port = "8332"
-	case btcwire.SimNet:
-		magic = btcwire.SimNet
-		currnet = btcnet.SimNetParams
-	case btcwire.TestNet:
-		magic = btcwire.TestNet
-		currnet = btcnet.RegressionNetParams
-		port = "18443"
+type BitcoinConf struct {
+	RPCPassword string `long:"rpcpassword"`
+	RPCUser     string `long:"rpcuser"`
+	Testnet     bool   `long:"testnet" default:"false"`
+	RPCListen   bool   `long:"server" default:"true"`
+}
+
+/*
+	ConfigureApp assumes that you have a "bitcoin.conf" like ini file under the
+	bitcoin data dir. If so it will build you an http rpc client and all the network
+	parameters needed to configure your entire bitcoin based application. WARNING!
+	This can and will die on you if it detects errors.
+*/
+func ConfigureApp() (*btcrpcclient.Client, btcnet.Params) {
+	connCfg, testnet, err := CfgFromFile()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	connCfg := btcrpcclient.ConnConfig{
-		Host:         "localhost:" + port,
-		User:         "bitcoinrpc",
-		Pass:         "9uTysQtMLf15DGWDYcQVStEbWKcNu8CqCL8Mb6HE3xFK",
+	client, err := makeRpcClient(connCfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var params btcnet.Params
+	if testnet {
+		params = btcnet.TestNet3Params
+	} else {
+		params = btcnet.MainNetParams
+	}
+
+	return client, params
+}
+
+func CfgFromFile() (*btcrpcclient.ConnConfig, bool, error) {
+	fileconf := &BitcoinConf{}
+
+	path := btcutil.AppDataDir("bitcoin", false) + "/bitcoin.conf"
+
+	parser := flags.NewParser(fileconf, flags.IgnoreUnknown)
+	err := flags.NewIniParser(parser).ParseFile(path)
+	if err != nil {
+		return nil, false, err
+	}
+
+	if !fileconf.RPCListen {
+		return nil, false, errors.New("Bitcoind not listening for rpc commands")
+	}
+
+	// TODO make rpcaddr configurable
+	var rpcaddr string
+	if fileconf.Testnet {
+		rpcaddr = "127.0.0.1:18332"
+	} else {
+		rpcaddr = "127.0.0.1:8332"
+	}
+
+	// TODO use tls!
+	connCfg := &btcrpcclient.ConnConfig{
+		Host:         rpcaddr,
+		User:         fileconf.RPCUser,
+		Pass:         fileconf.RPCPassword,
 		HttpPostMode: true,
 		DisableTLS:   true,
 	}
-	return connCfg, &currnet
+
+	return connCfg, fileconf.Testnet, nil
 }
 
-// Sets up an RPC client configured for the selected network,
-// it also responds with the relevant btcnet.Params struct
-func SetupNet(net btcwire.BitcoinNet) (*btcrpcclient.Client, *btcnet.Params) {
-	connCfg, netparams := pickNetwork(net)
-	client := makeRpcClient(connCfg)
-	return client, netparams
+func NetParamsFromStr(name string) (net btcnet.Params) {
+	switch {
+	case name == "TestNet3":
+		net = btcnet.TestNet3Params
+	case name == "MainNet":
+		net = btcnet.MainNetParams
+	case name == "SimNet":
+		net = btcnet.SimNetParams
+	case name == "TestNet":
+		net = btcnet.RegressionNetParams
+	}
+	return net
 }
 
-func makeRpcClient(connCfg btcrpcclient.ConnConfig) *btcrpcclient.Client {
-	client, err := btcrpcclient.New(&connCfg, nil)
+func makeRpcClient(connCfg *btcrpcclient.ConnConfig) (*btcrpcclient.Client, error) {
+	client, err := btcrpcclient.New(connCfg, nil)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	// check to see if we are connected
-	r, err := client.GetDifficulty()
+	err = checkconnection(client)
 	if err != nil {
-		log.Println(r)
-		log.Fatal(err)
+		return nil, err
 	}
-	return client
+	return client, nil
+}
+
+// check to see if we are connected
+func checkconnection(client *btcrpcclient.Client) error {
+	_, err := client.GetDifficulty()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func rpcTxPick(exact bool, targetAmnt int64, params BuilderParams) (*TxInParams, error) {

@@ -4,25 +4,43 @@ import (
 	"log"
 	"testing"
 
-	"github.com/conformal/btcwire"
-	_ "gopkg.in/check.v1"
+	"github.com/conformal/btcutil"
 )
 
-func TestRpcParameters(t *testing.T) {
+func TestRpc(t *testing.T) {
 	log.Println("Testing to see if rpc config works for this node!")
 
-	// TODO add parsing of config ini file
-	// from https://github.com/jessevdk/go-flags/blob/master/examples/main.go
-	client, err := SetupNet(btcwire.TestNet3)
+	connCfg, _, err := CfgFromFile()
 	if err != nil {
 		log.Println(err)
 		t.Fail()
 	}
 
-	info, err := client.GetInfo()
+	client, err := makeRpcClient(connCfg)
 	if err != nil {
 		log.Println(err)
 		t.Fail()
 	}
 
+	if err := checkconnection(client); err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+}
+
+func TestBalance(t *testing.T) {
+	log.Println("Testing to see if wallet has adequate balance")
+	client, _ := ConfigureApp()
+
+	bal, err := client.GetBalance("")
+	if err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+
+	target, _ := btcutil.NewAmount(1) // one bitcoin balance targeted
+	if bal < target {
+		log.Printf("Not enough funds %s short\n", target-bal)
+		t.Fail()
+	}
 }
