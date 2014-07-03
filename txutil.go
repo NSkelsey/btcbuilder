@@ -101,7 +101,8 @@ func CfgFromFile() (*btcrpcclient.ConnConfig, bool, error) {
 	return connCfg, fileconf.Testnet, nil
 }
 
-func NetParamsFromStr(name string) (net btcnet.Params) {
+func NetParamsFromStr(name string) (*btcnet.Params, error) {
+	var net btcnet.Params
 	switch {
 	case name == "TestNet3":
 		net = btcnet.TestNet3Params
@@ -111,8 +112,10 @@ func NetParamsFromStr(name string) (net btcnet.Params) {
 		net = btcnet.SimNetParams
 	case name == "TestNet":
 		net = btcnet.RegressionNetParams
+	default:
+		return nil, errors.New(name + " is not a valid bitcoin network string")
 	}
-	return net
+	return &net, nil
 }
 
 func makeRpcClient(connCfg *btcrpcclient.ConnConfig) (*btcrpcclient.Client, error) {
