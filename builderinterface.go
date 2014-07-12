@@ -36,9 +36,9 @@ func SetParams(net btcwire.BitcoinNet, params BuilderParams) BuilderParams {
 		params.Logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
 	}
 	if params.Client == nil {
-		client, currnet := SetupNet(net)
+		client, currnet := ConfigureApp()
 		params.Client = client
-		params.NetParams = currnet
+		params.NetParams = &currnet
 		params.PendingSet = make(map[string]struct{})
 		params.List = make([]btcjson.ListUnspentResult, 0)
 	}
@@ -46,9 +46,10 @@ func SetParams(net btcwire.BitcoinNet, params BuilderParams) BuilderParams {
 	return params
 }
 
+// TODO combine entry points into library into one global configuration function
 func CreateParams() BuilderParams {
 	var logger *log.Logger = log.New(os.Stdout, "", log.Ltime|log.Llongfile)
-	client, params := SetupNet(btcwire.TestNet3)
+	client, params := ConfigureApp()
 
 	bp := BuilderParams{
 		Fee:        20000,
@@ -56,7 +57,7 @@ func CreateParams() BuilderParams {
 		InTarget:   100000,
 		Logger:     logger,
 		Client:     client,
-		NetParams:  params,
+		NetParams:  &params,
 		PendingSet: make(map[string]struct{}),
 		List:       make([]btcjson.ListUnspentResult, 0),
 	}
