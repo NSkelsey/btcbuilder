@@ -49,7 +49,7 @@ func SelectKind(tx *btcwire.MsgTx) string {
 		}
 		pl = append(pl, Pair{Num: num, Class: cls})
 	}
-	// If the does not have funky output scripts just count occurrences
+	// If the tx does not have funky output scripts just count occurrences
 	sort.Sort(pl)
 	return pl[0].Class.String()
 }
