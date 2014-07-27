@@ -313,3 +313,16 @@ func dataAddr(raw []byte, net *btcnet.Params) *btcutil.AddressPubKeyHash {
 func outPointStr(outpoint *btcwire.OutPoint) string {
 	return fmt.Sprintf("%s[%d]", outpoint.Hash.String(), outpoint.Index)
 }
+
+func makeChange(changeAmnt int64, params BuilderParams) (*btcwire.TxOut, error) {
+	// Change needed
+	changeAddr, err := params.Client.GetNewAddress()
+	if err != nil {
+		return nil, err
+	}
+	change, ok := changeOutput(changeAmnt, params.DustAmnt, changeAddr)
+	if !ok {
+		return nil, fmt.Errorf("Change was not over dust amnt.")
+	}
+	return change, nil
+}
