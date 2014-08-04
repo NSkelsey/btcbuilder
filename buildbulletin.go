@@ -3,7 +3,7 @@ package btcbuilder
 import (
 	"fmt"
 
-	"github.com/NSkelsey/btcsubprotos/ahimsa"
+	"github.com/NSkelsey/protocol/ahimsa"
 	"github.com/conformal/btcscript"
 	"github.com/conformal/btcwire"
 )
