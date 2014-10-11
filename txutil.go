@@ -289,13 +289,13 @@ func PrevOutVal(tx *btcwire.MsgTx, client *btcrpcclient.Client) (int64, error) {
 	// requires an rpc client and outpoints within wallets realm
 	total := int64(0)
 	for _, txin := range tx.TxIn {
-		prevTxHash := txin.PreviousOutpoint.Hash
+		prevTxHash := txin.PreviousOutPoint.Hash
 		var tx *btcutil.Tx
 		tx, err := client.GetRawTransaction(&prevTxHash)
 		if err != nil {
 			return -1, err
 		}
-		vout := txin.PreviousOutpoint.Index
+		vout := txin.PreviousOutPoint.Index
 		txout := tx.MsgTx().TxOut[vout]
 		total += txout.Value
 	}
