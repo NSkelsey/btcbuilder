@@ -67,11 +67,11 @@ func (msB *MultiSigBuilder) Build() (*btcwire.MsgTx, error) {
 	}
 
 	// Sign this puppy
-	privkey := utxo.Wif.PrivKey.ToECDSA()
+	privkey := utxo.Wif.PrivKey
 	subscript := utxo.TxOut.PkScript
 	sigflag := btcscript.SigHashAll
 	scriptSig, err := btcscript.SignatureScript(msgtx, 0, subscript,
-		(byte)(sigflag), privkey, true)
+		sigflag, privkey, true)
 	if err != nil {
 		return nil, err
 	}

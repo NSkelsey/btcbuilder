@@ -57,7 +57,7 @@ func (builder *ToAddrBuilder) Build() (*btcwire.MsgTx, error) {
 	}
 
 	subscript := utxo.TxOut.PkScript
-	privkey := utxo.Wif.PrivKey.ToECDSA()
+	privkey := utxo.Wif.PrivKey
 	scriptSig, err := btcscript.SignatureScript(msgtx, 0, subscript, btcscript.SigHashAll, privkey, true)
 	if err != nil {
 		return nil, err

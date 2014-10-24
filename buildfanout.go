@@ -79,10 +79,9 @@ func (fanB *FanOutBuilder) Build() (*btcwire.MsgTx, error) {
 
 	// sign msgtx for each input
 	for i, inpParam := range inParamSet {
-		privkey := inpParam.Wif.PrivKey.ToECDSA()
+		privkey := inpParam.Wif.PrivKey
 		subscript := inpParam.TxOut.PkScript
-		var sigflag byte
-		sigflag = btcscript.SigHashAll
+		sigflag := btcscript.SigHashAll
 		scriptSig, err := btcscript.SignatureScript(msgtx, i, subscript,
 			sigflag, privkey, true)
 		if err != nil {

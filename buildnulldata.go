@@ -66,7 +66,7 @@ func (ndB *NullDataBuilder) Build() (*btcwire.MsgTx, error) {
 	msgtx.AddTxIn(txin)
 
 	// sign msgtx
-	privkey := utxo.Wif.PrivKey.ToECDSA()
+	privkey := utxo.Wif.PrivKey
 	scriptSig, err := btcscript.SignatureScript(msgtx, 0, utxo.TxOut.PkScript, btcscript.SigHashAll, privkey, true)
 	if err != nil {
 		return nil, err

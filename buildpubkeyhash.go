@@ -62,7 +62,7 @@ func (pkhB *PubKeyHashBuilder) Build() (*btcwire.MsgTx, error) {
 		txout := btcwire.NewTxOut(pkhB.eachOutVal(), addrScript)
 		msgtx.AddTxOut(txout)
 	}
-	privkey := inparams.Wif.PrivKey.ToECDSA()
+	privkey := inparams.Wif.PrivKey
 	sig, err := btcscript.SignatureScript(msgtx,
 		0,
 		inparams.TxOut.PkScript,

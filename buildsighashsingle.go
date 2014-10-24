@@ -52,7 +52,7 @@ func (shsB *SigHashSingleBuilder) Build() (*btcwire.MsgTx, error) {
 	msgtx.AddTxOut(blank)
 
 	subscript := oldTxOut.PkScript
-	privkey := wifkey.PrivKey.ToECDSA()
+	privkey := wifkey.PrivKey
 	scriptSig, err := btcscript.SignatureScript(msgtx, 0, subscript, btcscript.SigHashSingle, privkey, true)
 	if err != nil {
 		return nil, err

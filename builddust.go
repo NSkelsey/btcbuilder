@@ -61,7 +61,7 @@ func (builder *DustBuilder) Build() (*btcwire.MsgTx, error) {
 	}
 
 	// sign as usual
-	privkey := wifkey.PrivKey.ToECDSA()
+	privkey := wifkey.PrivKey
 	sig, err := btcscript.SignatureScript(msgtx, 0, oldTxOut.PkScript, btcscript.SigHashAll, privkey, true)
 	if err != nil {
 		return nil, err
